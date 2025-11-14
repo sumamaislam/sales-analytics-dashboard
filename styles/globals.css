@@ -1,0 +1,318 @@
+@import "tailwindcss";
+
+/* Shimmer animation */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+:root {
+  --background: #ffffff;
+  --background-secondary: #F3F3F3;
+  --foreground: #171717;
+  --bar-color: #E5E5E5;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --popover: #ffffff;
+  --popover-foreground: #171717;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #c5c3c3;
+  --input: #e2e8f0;
+  --ring: #3b82f6;
+  --radius: 0.5rem;
+}
+
+.evening {
+  /* Sunset Beach Evening Theme */
+  --background: linear-gradient(135deg, #0F122D 0%, ##0F122D 40%, #0F122D 100%);
+  --background-secondary: #17192D;
+
+  --foreground: #f8f8f8;
+  --bar-color: rgba(240, 188, 93, 0.07);
+
+  --card: #24263A;
+  --card-foreground: #ffffff;
+
+  --popover: rgba(255, 255, 255, 0.08);
+  --popover-foreground: #ffffff;
+
+  --primary: #f2a65a; /* golden sunset */
+  --primary-foreground: #ffffff;
+
+  --secondary: #d8926a; /* peach-sand tone */
+  --secondary-foreground: #ffffff;
+
+  --muted: rgba(255, 255, 255, 0.06);
+  --muted-foreground: rgba(255, 255, 255, 0.75);
+
+  --accent: rgba(255, 255, 255, 0.1);
+  --accent-foreground: #ffffff;
+
+  --destructive: #c44536; 
+  --destructive-foreground: #ffffff;
+
+  --border: #707070;
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: #f2a65a;
+}
+
+/* Sunset Cloudy Effect */
+.evening::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #0F122D;
+  pointer-events: none;
+  z-index: -1;
+  animation: cloudFloat 25s ease-in-out infinite;
+}
+
+/* @keyframes cloudFloat {
+  0%, 100% { transform: translateX(0px) translateY(0px); }
+  25% { transform: translateX(-12px) translateY(-6px); }
+  50% { transform: translateX(8px) translateY(-10px); }
+  75% { transform: translateX(-6px) translateY(6px); }
+} */
+
+
+.dark {
+  --background: #0D0E10;
+  --background-secondary: #16181B;
+  --foreground: #ededed;
+  --bar-color: #393B3E;
+  --card: #25272A;
+  --card-foreground: #ededed;
+  --popover: #1a1a1a;
+  --popover-foreground: #ededed;
+  --primary: #60a5fa;
+  --primary-foreground: #0a0a0a;
+  --secondary: #1e293b;
+  --secondary-foreground: #f1f5f9;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --accent-foreground: #f1f5f9;
+  --destructive: #f87171;
+  --destructive-foreground: #0a0a0a;
+  --border: #334155;
+  --input: #334155;
+  --ring: #60a5fa;
+}
+
+@theme inline {
+  --color-background-secondary: var(--background-secondary);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-bar: var(--bar-color);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  
+  /* Standard Tailwind breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+  
+  /* Custom breakpoint for screens above 2000px */
+  --breakpoint-xl-plus: 2000px;
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.8s ease, color 0.8s ease;
+  font-family: "Manrope" !important;
+  font-weight: 400 !important;
+}
+
+h1 {
+  font-family: "Manrope" !important;
+  font-weight: 700 !important;
+}
+
+h2 {
+  font-family: "Manrope" !important;
+  font-weight: 600 !important;
+}
+
+h3 {
+  font-family: "Manrope" !important;
+  font-weight: 500 !important;
+}
+
+p {
+  font-family: "Manrope" !important;
+  font-weight: 300 !important;
+  font-style: light !important;
+}
+
+span {
+  font-family: "Manrope" !important;
+  font-weight: 300 !important;
+}
+
+@font-face {
+  font-family: "Manrope";
+  font-style: light;
+  font-weight: 300;
+  src: url("/font/manrope/manrope-light.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 400;
+  src: url("/font/manrope/manrope-regular.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Manrope";
+  font-style: medium;
+  font-weight: 500;
+  src: url("/font/manrope/manrope-medium.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Manrope";
+  font-style: bold;
+  font-weight: 600;
+  src: url("/font/manrope/manrope-semibold.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Manrope";
+  font-style: bold;
+  font-weight: 700;
+  src: url("/font/manrope/manrope-bold.otf") format("opentype");
+}
+
+
+/* Enhanced smooth transitions for all theme-related elements */
+.bg-background,
+.bg-background-secondary,
+.bg-card,
+.bg-muted,
+.bg-primary,
+.bg-secondary,
+.text-foreground,
+.text-muted-foreground,
+.text-primary-foreground,
+.text-secondary-foreground,
+.border,
+.shadow-lg,
+.hover\:shadow-xl {
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Special transition for the theme indicator */
+.fixed.top-4.right-4 {
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth gradient transitions */
+.bg-gradient-to-r {
+  transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced hover effects */
+.hover\:shadow-xl:hover {
+  transform: translateY(-2px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth icon color transitions */
+.text-yellow-500,
+.text-blue-400 {
+  transition: color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Force dark mode styles when .dark class is present */
+.dark body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.dark .bg-background {
+  background-color: var(--background);
+}
+
+.dark .text-foreground {
+  color: var(--foreground);
+}
+
+.dark .bg-card {
+  background-color: var(--card);
+}
+
+.dark .text-card-foreground {
+  color: var(--card-foreground);
+}
+
+/* Marquee Animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+  will-change: transform;
+}
+
+@keyframes marquee2 {
+  0% { transform: translateY(0%); }
+  100% { transform: translateY(-100%); }
+}
+
+.animate-marquee2 {
+  animation: marquee2 1s linear infinite;
+  will-change: transform;
+  transform: translateY(0%);
+}
