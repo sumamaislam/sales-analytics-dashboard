@@ -1,16 +1,313 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useTheme } from "./theme-context"
+import { useSalesAnalytics } from "../socket/useSocketData"
 import GoodMorning from "../goodMorning"
 import GoodNight from "../goodNight"
 import Header from "../header"
 import SalesDashboard from "../SalesDashboard"
 import SalesMarquee from "../SalesDashboard/salesMarquee"
 import SummaryCom from "../SalesDashboard/summaryCom"
+import { Loader2 } from "lucide-react"
+import { motion } from "framer-motion"
+
+// Ring Tones Library - defined outside component to avoid recreation
+const ringTones = {
+  nadra: {
+    name: 'Nadra Office Style',
+    play: (audioContext) => {
+      // Professional office notification sound (like Nadra screens)
+      const osc1 = audioContext.createOscillator();
+      const osc2 = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      osc1.connect(gainNode);
+      osc2.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      osc1.type = 'sine';
+      osc2.type = 'sine';
+      
+      const now = audioContext.currentTime;
+      
+      // Two-tone professional beep (like office systems)
+      osc1.frequency.setValueAtTime(1000, now);
+      osc2.frequency.setValueAtTime(1200, now);
+      
+      // Quick double beep pattern
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(0.4, now + 0.05);
+      gainNode.gain.setValueAtTime(0.4, now + 0.1);
+      gainNode.gain.linearRampToValueAtTime(0, now + 0.15);
+      
+      // Second beep
+      gainNode.gain.setValueAtTime(0, now + 0.2);
+      gainNode.gain.linearRampToValueAtTime(0.4, now + 0.25);
+      gainNode.gain.setValueAtTime(0.4, now + 0.3);
+      gainNode.gain.linearRampToValueAtTime(0, now + 0.35);
+      
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.35);
+      osc2.stop(now + 0.35);
+    }
+  },
+  classic: {
+    name: 'Classic Phone Ring',
+    play: (audioContext) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      oscillator.type = 'sine';
+      const now = audioContext.currentTime;
+      oscillator.frequency.setValueAtTime(800, now);
+      oscillator.frequency.setValueAtTime(1000, now + 0.1);
+      oscillator.frequency.setValueAtTime(800, now + 0.2);
+      oscillator.frequency.setValueAtTime(1000, now + 0.3);
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(0.6, now + 0.05);
+      gainNode.gain.setValueAtTime(0.6, now + 0.35);
+      gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
+      oscillator.start(now);
+      oscillator.stop(now + 0.4);
+    }
+  },
+  bell: {
+    name: 'Bell',
+    play: (audioContext) => {
+      const now = audioContext.currentTime;
+      
+      // First bell ring
+      const osc1 = audioContext.createOscillator();
+      const gain1 = audioContext.createGain();
+      osc1.connect(gain1);
+      gain1.connect(audioContext.destination);
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(523.25, now); // C5
+      osc1.frequency.setValueAtTime(659.25, now + 0.1); // E5
+      osc1.frequency.setValueAtTime(783.99, now + 0.2); // G5
+      gain1.gain.setValueAtTime(0, now);
+      gain1.gain.linearRampToValueAtTime(0.7, now + 0.1);
+      gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      osc1.start(now);
+      osc1.stop(now + 0.5);
+      
+      // Second bell ring (after a short pause)
+      const osc2 = audioContext.createOscillator();
+      const gain2 = audioContext.createGain();
+      osc2.connect(gain2);
+      gain2.connect(audioContext.destination);
+      osc2.type = 'sine';
+      const secondStart = now + 0.6; // Start after first bell ends
+      osc2.frequency.setValueAtTime(523.25, secondStart); // C5
+      osc2.frequency.setValueAtTime(659.25, secondStart + 0.1); // E5
+      osc2.frequency.setValueAtTime(783.99, secondStart + 0.2); // G5
+      gain2.gain.setValueAtTime(0, secondStart);
+      gain2.gain.linearRampToValueAtTime(0.7, secondStart + 0.1);
+      gain2.gain.exponentialRampToValueAtTime(0.01, secondStart + 0.5);
+      osc2.start(secondStart);
+      osc2.stop(secondStart + 0.5);
+    }
+  },
+  chime: {
+    name: 'Chime',
+    play: (audioContext) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      oscillator.type = 'sine';
+      const now = audioContext.currentTime;
+      oscillator.frequency.setValueAtTime(880, now); // A5
+      oscillator.frequency.setValueAtTime(1108.73, now + 0.15); // C#6
+      oscillator.frequency.setValueAtTime(1318.51, now + 0.3); // E6
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(0.6, now + 0.05);
+      gainNode.gain.setValueAtTime(0.6, now + 0.4);
+      gainNode.gain.linearRampToValueAtTime(0, now + 0.6);
+      oscillator.start(now);
+      oscillator.stop(now + 0.6);
+    }
+  },
+  beep: {
+    name: 'Beep',
+    play: (audioContext) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      oscillator.type = 'square';
+      const now = audioContext.currentTime;
+      oscillator.frequency.setValueAtTime(1000, now);
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(0.5, now + 0.05);
+      gainNode.gain.setValueAtTime(0.5, now + 0.15);
+      gainNode.gain.linearRampToValueAtTime(0, now + 0.2);
+      oscillator.start(now);
+      oscillator.stop(now + 0.2);
+    }
+  },
+  notification: {
+    name: 'Notification',
+    play: (audioContext) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      oscillator.type = 'sine';
+      const now = audioContext.currentTime;
+      oscillator.frequency.setValueAtTime(800, now);
+      oscillator.frequency.setValueAtTime(600, now + 0.1);
+      oscillator.frequency.setValueAtTime(800, now + 0.2);
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(0.5, now + 0.05);
+      gainNode.gain.setValueAtTime(0.5, now + 0.25);
+      gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+      oscillator.start(now);
+      oscillator.stop(now + 0.3);
+    }
+  },
+  doorbell: {
+    name: 'Doorbell',
+    play: (audioContext) => {
+      const osc1 = audioContext.createOscillator();
+      const osc2 = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      osc1.connect(gainNode);
+      osc2.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      osc1.type = 'sine';
+      osc2.type = 'sine';
+      const now = audioContext.currentTime;
+      osc1.frequency.setValueAtTime(523.25, now); // C5
+      osc2.frequency.setValueAtTime(659.25, now); // E5
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(0.6, now + 0.1);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.5);
+      osc2.stop(now + 0.5);
+    }
+  },
+  melody: {
+    name: 'Melody (Long)',
+    play: (audioContext) => {
+      // Long melodic sequence
+      const notes = [
+        { freq: 523.25, time: 0, duration: 0.3 },   // C5
+        { freq: 659.25, time: 0.3, duration: 0.3 },  // E5
+        { freq: 783.99, time: 0.6, duration: 0.3 },  // G5
+        { freq: 1046.50, time: 0.9, duration: 0.4 },  // C6
+        { freq: 783.99, time: 1.3, duration: 0.3 },   // G5
+        { freq: 1046.50, time: 1.6, duration: 0.5 } // C6
+      ];
+      
+      notes.forEach(note => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(note.freq, audioContext.currentTime + note.time);
+        gain.gain.setValueAtTime(0, audioContext.currentTime + note.time);
+        gain.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + note.time + 0.05);
+        gain.gain.setValueAtTime(0.5, audioContext.currentTime + note.time + note.duration - 0.1);
+        gain.gain.linearRampToValueAtTime(0, audioContext.currentTime + note.time + note.duration);
+        osc.start(audioContext.currentTime + note.time);
+        osc.stop(audioContext.currentTime + note.time + note.duration);
+      });
+    }
+  },
+  chimes: {
+    name: 'Chimes (Long)',
+    play: (audioContext) => {
+      // Long chime sequence
+      const chimes = [
+        { freq: 880, time: 0 },      // A5
+        { freq: 1108.73, time: 0.2 }, // C#6
+        { freq: 1318.51, time: 0.4 }, // E6
+        { freq: 1567.98, time: 0.6 }, // G6
+        { freq: 1760, time: 0.8 }     // A6
+      ];
+      
+      chimes.forEach((chime, index) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.type = 'sine';
+        const now = audioContext.currentTime + chime.time;
+        osc.frequency.setValueAtTime(chime.freq, now);
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.6, now + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+        osc.start(now);
+        osc.stop(now + 1.2);
+      });
+    }
+  },
+  fanfare: {
+    name: 'Fanfare (Long)',
+    play: (audioContext) => {
+      // Long fanfare sequence
+      const fanfare = [
+        { freq: 523.25, time: 0 },   // C5
+        { freq: 659.25, time: 0.1 }, // E5
+        { freq: 783.99, time: 0.2 }, // G5
+        { freq: 1046.50, time: 0.3 }, // C6
+        { freq: 1318.51, time: 0.4 }, // E6
+        { freq: 1567.98, time: 0.5 }, // G6
+        { freq: 2093, time: 0.6 }     // C7
+      ];
+      
+      fanfare.forEach((note, index) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.type = 'sine';
+        const now = audioContext.currentTime + note.time;
+        osc.frequency.setValueAtTime(note.freq, now);
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.7, now + 0.05);
+        gain.gain.setValueAtTime(0.7, now + 0.3);
+        gain.gain.linearRampToValueAtTime(0, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      });
+    }
+  },
+  ascending: {
+    name: 'Ascending (Long)',
+    play: (audioContext) => {
+      // Long ascending sequence
+      const scale = [523.25, 587.33, 659.25, 698.46, 783.99, 880, 987.77, 1046.50]; // C major scale
+      
+      scale.forEach((freq, index) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.type = 'sine';
+        const now = audioContext.currentTime + (index * 0.2);
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.6, now + 0.05);
+        gain.gain.setValueAtTime(0.6, now + 0.15);
+        gain.gain.linearRampToValueAtTime(0, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      });
+    }
+  }
+};
 
 export default function ThemeDisplay() {
   const { theme } = useTheme()
+  const { data: salesData, loading } = useSalesAnalytics()
   const [showGreeting, setShowGreeting] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false);
   const [opacity, setOpacity] = useState(1);
@@ -24,6 +321,181 @@ export default function ThemeDisplay() {
   const [slideX, setSlideX] = useState(0);
   const [brightness, setBrightness] = useState(1);
   const [contrast, setContrast] = useState(1);
+  const [selectedRingTone, setSelectedRingTone] = useState(() => {
+    // Load from localStorage or use default (Nadra style)
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('ringTone') || 'nadra';
+    }
+    return 'nadra';
+  });
+  const [isMuted, setIsMuted] = useState(() => {
+    // Load mute state from localStorage
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('ringToneMuted') === 'true';
+    }
+    return false;
+  });
+  const audioContextRef = useRef(null);
+
+  // Initialize audio context on user interaction
+  useEffect(() => {
+    const initAudio = () => {
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass && !audioContextRef.current) {
+          audioContextRef.current = new AudioContextClass();
+          // Resume if suspended
+          if (audioContextRef.current.state === 'suspended') {
+            audioContextRef.current.resume();
+          }
+        }
+      } catch (error) {
+        console.log("Audio init error:", error);
+      }
+    };
+
+    // Initialize on any user interaction
+    const events = ['click', 'touchstart', 'keydown'];
+    events.forEach(event => {
+      window.addEventListener(event, initAudio, { once: true });
+    });
+
+    return () => {
+      events.forEach(event => {
+        window.removeEventListener(event, initAudio);
+      });
+    };
+  }, []);
+
+  // Function to speak user name
+  const speakUserName = (userName) => {
+    if (!userName || typeof window === 'undefined') return;
+    
+    try {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(userName);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9; // Slightly slower
+        utterance.pitch = 1.0;
+        utterance.volume = 0.8;
+        
+        // Cancel any ongoing speech
+        window.speechSynthesis.cancel();
+        
+        // Speak the user name
+        window.speechSynthesis.speak(utterance);
+        console.log(`🗣️ Speaking user name: ${userName}`);
+      }
+    } catch (error) {
+      console.log("Speech synthesis error:", error);
+    }
+  };
+
+  // Function to play ring sound
+  const playRingSound = () => {
+    // Check if muted - get latest from localStorage
+    const currentMuted = typeof window !== 'undefined' 
+      ? (localStorage.getItem('ringToneMuted') === 'true')
+      : isMuted;
+    
+    if (currentMuted) {
+      console.log("🔇 Sound is muted");
+      return;
+    }
+
+    // Get current user name
+    const currentUserName = userNames[currentIndex] || '';
+    
+    try {
+      if (!audioContextRef.current) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) {
+          console.log("AudioContext not supported");
+          return;
+        }
+        audioContextRef.current = new AudioContextClass();
+      }
+
+      const audioContext = audioContextRef.current;
+      
+      // Resume audio context if suspended
+      if (audioContext.state === 'suspended') {
+        audioContext.resume().then(() => {
+          playRingTone(audioContext);
+          // Speak user name after a short delay
+          if (currentUserName) {
+            setTimeout(() => {
+              speakUserName(currentUserName);
+            }, 300);
+          }
+        }).catch(err => {
+          console.log("Audio context resume failed:", err);
+        });
+      } else {
+        playRingTone(audioContext);
+        // Speak user name after a short delay
+        if (currentUserName) {
+          setTimeout(() => {
+            speakUserName(currentUserName);
+          }, 300);
+        }
+      }
+    } catch (error) {
+      console.log("Audio error:", error);
+    }
+  };
+
+  // Listen for mute state and ring tone changes from localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      if (typeof window !== 'undefined') {
+        const muted = localStorage.getItem('ringToneMuted') === 'true';
+        setIsMuted(muted);
+        
+        // Also update ring tone from localStorage
+        const savedTone = localStorage.getItem('ringTone') || 'nadra';
+        if (savedTone !== selectedRingTone) {
+          setSelectedRingTone(savedTone);
+        }
+      }
+    };
+
+    // Listen for storage events (when changed from another tab/window)
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check periodically (for same-tab changes)
+    const interval = setInterval(handleStorageChange, 500);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [selectedRingTone]);
+
+  // Helper function to play the actual ring tone
+  const playRingTone = (audioContext) => {
+    try {
+      // Get latest ring tone from localStorage to ensure we use the most recent selection
+      const currentTone = typeof window !== 'undefined' 
+        ? (localStorage.getItem('ringTone') || 'nadra')
+        : selectedRingTone;
+      
+      console.log("🎵 Playing ring tone:", currentTone, "from localStorage");
+      
+      const ringTone = ringTones[currentTone];
+      if (ringTone) {
+        ringTone.play(audioContext);
+        console.log(`🔔 ${ringTone.name} played`);
+      } else {
+        // Fallback to nadra
+        console.log("⚠️ Ring tone not found, using nadra as fallback");
+        ringTones.nadra.play(audioContext);
+        console.log("🔔 Nadra ring sound played (fallback)");
+      }
+    } catch (error) {
+      console.log("Ring tone error:", error);
+    }
+  };
 
   useEffect(() => {
     // Show greeting component for 5 seconds based on theme
@@ -71,7 +543,12 @@ export default function ThemeDisplay() {
                     
                     // After slide animation, change user and slide back
                     setTimeout(() => {
-                        setCurrentIndex((prev) => (prev + 1) % userNames.length);
+                        setCurrentIndex((prev) => {
+                            const newIndex = (prev + 1) % userNames.length;
+                            // Play ring sound when user changes
+                            playRingSound();
+                            return newIndex;
+                        });
                         setOpacity(1);
                         setScale(1);
                         
@@ -80,8 +557,8 @@ export default function ThemeDisplay() {
                             setIsAnimating(false);
                         }, 1000);
                     }, 1000);
-                }, 40000); // 40 seconds user switching
-            }, 40000); // Wait 40 seconds before starting the first cycle
+                }, 10000); // 40 seconds user switching
+            }, 10000); // Wait 40 seconds before starting the first cycle
         };
 
         const startSummaryCycle = () => {
@@ -141,6 +618,143 @@ export default function ThemeDisplay() {
     }
   }, [userNames.length, showSalesDashboard]);
 
+
+  // Show loader while data is loading
+  if (loading || !salesData) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-purple-50 to-blue-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute top-20 left-20 w-96 h-96 bg-purple-400 dark:bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
+            animate={{
+              scale: [1, 1.2, 1],
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+          <motion.div
+            className="absolute top-40 right-20 w-96 h-96 bg-blue-400 dark:bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
+            animate={{
+              scale: [1, 1.3, 1],
+              x: [0, -50, 0],
+              y: [0, 40, 0],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+          <motion.div
+            className="absolute bottom-20 left-1/2 w-96 h-96 bg-pink-400 dark:bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
+            animate={{
+              scale: [1, 1.1, 1],
+              x: [0, 30, 0],
+              y: [0, -30, 0],
+            }}
+            transition={{
+              duration: 12,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            
+          />
+        </div>
+
+        <div className="text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-center gap-6"
+          >
+            {/* Main Spinner with Glow Effect */}
+            <div className="relative">
+              <motion.div
+                className="absolute inset-0 bg-purple-500 dark:bg-purple-400 rounded-full blur-2xl opacity-50"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.5, 0.8, 0.5],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="relative"
+              >
+                <Loader2 className="w-20 h-20 text-purple-600 dark:text-purple-400 drop-shadow-lg" />
+              </motion.div>
+            </div>
+
+            {/* Text Content */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-3">
+                Loading Dashboard
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300 text-lg">
+                Fetching your analytics data...
+              </p>
+            </motion.div>
+
+            {/* Animated Progress Dots */}
+            <div className="flex gap-2 mt-6">
+              {[0, 1, 2, 3].map((i) => (
+                <motion.div
+                  key={i}
+                  className="w-3 h-3 bg-gradient-to-r from-purple-500 to-blue-500 dark:from-purple-400 dark:to-blue-400 rounded-full shadow-lg"
+                  animate={{
+                    scale: [1, 1.3, 1],
+                    opacity: [0.4, 1, 0.4],
+                    y: [0, -10, 0],
+                  }}
+                  transition={{
+                    duration: 1.2,
+                    repeat: Infinity,
+                    delay: i * 0.15,
+                    ease: "easeInOut",
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Progress Bar */}
+            <motion.div
+              className="w-64 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mt-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <motion.div
+                className="h-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500"
+                initial={{ width: "0%" }}
+                animate={{ width: "100%" }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+            </motion.div>
+          </motion.div>
+        </div>
+      </div>
+    )
+  }
 
   if (showGreeting) {
     // Show greeting component based on theme

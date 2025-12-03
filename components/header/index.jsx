@@ -1,11 +1,13 @@
 import { Moon, Sun, Settings, Cloud } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { useTheme } from '../theme/theme-context'
+import SettingsMenu from './SettingsMenu'
 
 function Header() {
   const { theme, toggleTheme } = useTheme()
   const [currentTime, setCurrentTime] = useState(null)
   const [isClient, setIsClient] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   useEffect(() => {
     // Mark as client-side and set initial time
@@ -38,6 +40,15 @@ function Header() {
           
           {/* Theme Toggle Button */}
           <div className='flex items-center gap-2'>
+            {/* Settings Button */}
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className='ml-4 bg-card dark:bg-card dark:border p-2 xl-plus:p-4 rounded-[9px] w-[40px] xl-plus:w-[88px] h-auto xl-plus:h-auto transition-colors hover:bg-gray-100 dark:hover:bg-gray-800'
+              title="Settings"
+            >
+              <Settings className='w-full h-auto text-gray-700 dark:text-gray-300 xl-plus:text-[50px] text-[20px]' />
+            </button>
+            
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
@@ -55,6 +66,12 @@ function Header() {
           </div>
         </div>
       </div>
+      
+      {/* Settings Menu */}
+      <SettingsMenu 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
     </div>
   )
 }

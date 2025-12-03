@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react"
 import io from "socket.io-client"
+import MaintenancePage from "@/components/maintenance/MaintenancePage"
 
 const SocketDataContext = createContext()
 
@@ -13,11 +14,13 @@ export function SocketDataProvider({ children }) {
   const [salesSummary, setSalesSummary] = useState(null)
   const [designAndDieAnalytics, setDesignAndDieAnalytics] = useState(null)
   const [error, setError] = useState(null)
+  const [showMaintenance, setShowMaintenance] = useState(false)
 
   useEffect(() => {
     // Connect socket
     const newSocket = io("https://pipefish-united-poorly.ngrok-free.app", {
       transports: ["websocket"],
+      timeout: 50000,
     })
 
     // Connection event handlers
@@ -25,6 +28,7 @@ export function SocketDataProvider({ children }) {
       console.log("Socket connected:", newSocket.id)
       setIsConnected(true)
       setError(null)
+      setShowMaintenance(false)
     })
 
     newSocket.on("disconnect", (reason) => {
@@ -36,6 +40,7 @@ export function SocketDataProvider({ children }) {
       console.error("Socket connection error:", error)
       setError(error.message)
       setIsConnected(false)
+      setShowMaintenance(true)
     })
 
     // Listen for message updates
@@ -143,8 +148,11 @@ export function SocketDataProvider({ children }) {
 
   // Reconnect socket
   const reconnect = () => {
+    setShowMaintenance(false)
     if (socket) {
       socket.connect()
+    } else {
+      window.location.reload()
     }
   }
 
@@ -181,6 +189,15 @@ export function SocketDataProvider({ children }) {
     setSalesSummary,
     setDesignAndDieAnalytics,
     setError
+  }
+
+  // Show maintenance page on socket connection error
+  if (showMaintenance) {
+    return (
+      <SocketDataContext.Provider value={value}>
+        <MaintenancePage onRetry={reconnect} />
+      </SocketDataContext.Provider>
+    )
   }
 
   return (
