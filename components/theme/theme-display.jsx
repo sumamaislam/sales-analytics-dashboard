@@ -7,6 +7,8 @@ import GoodMorning from "../goodMorning";
 import GoodNight from "../goodNight";
 import MotivationalGreeting from "../motivationalGreeting";
 import BreakTimeQuotes from "../breakTimeQuotes";
+import OffTimeScreen from "../offTimeScreen";
+import Birthday from "../birthday";
 import Header from "../header";
 import SalesDashboard from "../SalesDashboard";
 import SalesMarquee from "../SalesDashboard/salesMarquee";
@@ -327,8 +329,15 @@ export default function ThemeDisplay() {
   const [showGreeting, setShowGreeting] = useState(false);
   const [showMotivational, setShowMotivational] = useState(false);
   const [showBreakTimeQuotes, setShowBreakTimeQuotes] = useState(false);
+  const [showOffTimeScreen, setShowOffTimeScreen] = useState(false);
+  const [showBirthday, setShowBirthday] = useState(false);
+  const [birthdayName, setBirthdayName] = useState("");
   const [motivationalShownToday, setMotivationalShownToday] = useState(false);
   const [breakTimeShownToday, setBreakTimeShownToday] = useState(false);
+  const [offTimeShownToday, setOffTimeShownToday] = useState(false);
+  const [birthdayShownToday, setBirthdayShownToday] = useState(false);
+  console.log(birthdayShownToday, "birthdayShow");
+  
   const [isAnimating, setIsAnimating] = useState(false);
   const [opacity, setOpacity] = useState(1);
   const [blur, setBlur] = useState(0);
@@ -546,6 +555,99 @@ export default function ThemeDisplay() {
     };
   }, [selectedRingTone]);
 
+  // Check for birthday at 12:00 PM (noon)
+
+useEffect(() => {
+  const checkBirthdayTime = async () => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+
+    // Hit API only at 4:33 AM once per day
+    if (hours === 12 && minutes === 0 && !birthdayShownToday) {
+      try {
+       
+        const response = await fetch('/api/birthday');
+        const data = await response.json();
+       
+
+        // Handle API response with "all" array
+        const birthdayArray = data?.all || data || [];
+        
+        if (birthdayArray && birthdayArray.length > 0) {
+          const firstBirthday = birthdayArray[0];
+          const today = new Date();
+          
+        
+          
+          // Get the date_of_birth field
+          const dateField = firstBirthday.date_of_birth;
+          
+          if (dateField) {
+            // Parse the date string and ignore year
+            const dateParts = dateField.split('-'); // Format: YYYY-MM-DD
+            const birthdayMonth = parseInt(dateParts[1]) - 1; // Month is 0-indexed
+            const birthdayDay = parseInt(dateParts[2]);
+            
+            const today = new Date();
+            const todayMonth = today.getMonth();
+            const todayDay = today.getDate();
+            
+
+            // Compare month and day only (ignore year)
+            if (birthdayDay === todayDay && birthdayMonth === todayMonth) {
+              
+              
+              setBirthdayName(firstBirthday.name || "Friend");
+              setBirthdayShownToday(true);
+              setShowBirthday(true);
+              setShowGreeting(false);
+              setShowSalesDashboard(false);
+              setShowSummary(false);
+              setShowMotivational(false);
+              setShowBreakTimeQuotes(false);
+              setShowOffTimeScreen(false);
+
+
+              // Hide after 30 seconds
+              setTimeout(() => {
+                setShowBirthday(false);
+                setShowSalesDashboard(true);
+              }, 30000);
+            } else {
+              
+              setBirthdayShownToday(true);
+            }
+          } else {
+           
+            setBirthdayShownToday(true);
+          }
+        } else {
+        
+          setBirthdayShownToday(true);
+        }
+      } catch (err) {
+        console.error('❌ Birthday API error:', err);
+        setBirthdayShownToday(true);
+      }
+    }
+
+    // Reset flag for next day at midnight
+    if (hours === 0 && minutes === 0) {
+      console.log('🕛 Midnight - Reset birthday flag for tomorrow');
+      setBirthdayShownToday(false);
+    }
+  };
+
+  // Check on mount
+  checkBirthdayTime();
+  
+  // Check every 1 minute
+  const interval = setInterval(checkBirthdayTime, 60000);
+  return () => clearInterval(interval);
+}, [birthdayShownToday]);
+
+
   // Check for 4:32 PM to show motivational greeting
   useEffect(() => {
     const checkMotivationalTime = () => {
@@ -554,7 +656,7 @@ export default function ThemeDisplay() {
       const minutes = now.getMinutes();
       
       // Show motivational greeting at 16:32 (4:32 PM)
-      if (hours === 19 && minutes === 35 && !motivationalShownToday) {
+      if (hours === 19 && minutes === 30 && !motivationalShownToday) {
         setMotivationalShownToday(true);
         setShowMotivational(true);
         setShowGreeting(false);
@@ -565,7 +667,7 @@ export default function ThemeDisplay() {
         setTimeout(() => {
           setShowMotivational(false);
           setShowSalesDashboard(true);
-        }, 10000);
+        }, 30000);
       }
       
       // Reset flag at midnight (next day)
@@ -605,7 +707,7 @@ export default function ThemeDisplay() {
         setTimeout(() => {
           setShowBreakTimeQuotes(false);
           setShowSalesDashboard(true);
-        }, 10000);
+        }, 30000);
       }
       
       // Reset flag at midnight (next day)
@@ -624,6 +726,47 @@ export default function ThemeDisplay() {
       clearInterval(interval);
     };
   }, [breakTimeShownToday]);
+
+  // Check for off time screen (exit time)
+  useEffect(() => {
+    const checkOffTime = () => {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      
+      // Show off time screen at specific time (e.g., 6:00 PM / 18:00)
+      if (hours === 4 && minutes === 45 && !offTimeShownToday) {
+        setOffTimeShownToday(true);
+        setShowOffTimeScreen(true);
+        setShowGreeting(false);
+        setShowSalesDashboard(false);
+        setShowSummary(false);
+        setShowMotivational(false);
+        setShowBreakTimeQuotes(false);
+        
+        // Hide after 10 seconds
+        setTimeout(() => {
+          setShowOffTimeScreen(false);
+          setShowSalesDashboard(true);
+        }, 30000);
+      }
+      
+      // Reset flag at midnight (next day)
+      if (hours === 0 && minutes === 0) {
+        setOffTimeShownToday(false);
+      }
+    };
+
+    // Check immediately
+    checkOffTime();
+    
+    // Check every 5 seconds for faster detection
+    const interval = setInterval(checkOffTime, 5000);
+    
+    return () => {
+      clearInterval(interval);
+    };
+  }, [offTimeShownToday]);
 
   // Helper function to play the actual ring tone
   const playRingTone = (audioContext) => {
@@ -915,6 +1058,16 @@ export default function ThemeDisplay() {
     } else if (theme === "evening") {
       return <GoodNight isVisible={true} />;
     }
+  }
+
+  // Show birthday screen at 12:00 PM
+  if (showBirthday) {
+    return <Birthday isVisible={true} name={birthdayName} />;
+  }
+
+  // Show off time screen (exit screen)
+  if (showOffTimeScreen) {
+    return <OffTimeScreen isVisible={true} />;
   }
 
   // Show break time quotes at 3:28 AM

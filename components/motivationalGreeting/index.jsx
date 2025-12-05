@@ -7,47 +7,49 @@ import { Sparkles, Sun, Coffee, Heart, Star, Zap } from "lucide-react";
 // 22 Working Days Motivational Quotes (Mon-Fri, 4 weeks + 2 days)
 const workingDaysQuotes = [
   // Week 1
-  { day: 1, dayName: "Monday", quote: "New week, new opportunities! Let's make it count, Sam!", audio: "/voices/monday1.mp3" },
-  { day: 2, dayName: "Tuesday", quote: "Your first call sets your momentum. Begin strong!", audio: "/voices/day2.mp3" },
-  { day: 3, dayName: "Wednesday", quote: "Today’s numbers start now. Own them!" , audio: "/voices/day3.mp3" },
-  { day: 4, dayName: "Thursday", quote: "Energy high, focus sharp — targets in sight!", audio: "/voices/day 4.mp3" },
-  { day: 5, dayName: "Friday", quote: "Your morning discipline decides your evening success.", audio: "/voices/day 5.mp3" },
+  { day: 1, dayName: "Monday", quote: "A fresh start — let’s make today unbeatable!", audio: "/audio/entry/day_1.mp3" },
+  { day: 2, dayName: "Tuesday", quote: "Your first call sets your momentum. Begin strong!", audio: "/audio/entry/day_2.mp3" },
+  { day: 3, dayName: "Wednesday", quote: "Today’s numbers start now. Own them!" , audio: "/audio/entry/day_3.mp3" },
+  { day: 4, dayName: "Thursday", quote: "Energy high, focus sharp — targets in sight!", audio: "/audio/entry/day_4.mp3" },
+  { day: 5, dayName: "Friday", quote: "Your morning discipline decides your evening success.", audio: "/audio/entry/day_5.mp3" },
   
   // Week 2
-  { day: 6, dayName: "Monday", quote: "Every lead is a new opportunity — go capture it!" , audio: "/voices/day 6.mp3" },
-  { day: 7, dayName: "Tuesday", quote: "Start fast, finish faster!", audio: "/voices/day 7.mp3" },
-  { day: 8, dayName: "Wednesday", quote: "Be the reason the team hits record numbers today." , audio: "/voices/day 8.mp3" },
-  { day: 9, dayName: "Thursday", quote: "A powerful day starts with a powerful mindset.", audio: "/voices/day 9.mp3" },
-  { day: 10, dayName: "Friday", quote: "Success doesn’t wait — start taking action now." , audio: "/voices/day 10.mp3" },
+  { day: 6, dayName: "Monday", quote: "Every lead is a new opportunity — go capture it!" , audio: "/audio/entry/day_6.mp3" },
+  { day: 7, dayName: "Tuesday", quote: "Start fast, finish faster!", audio: "/audio/entry/day_7.mp3" },
+  { day: 8, dayName: "Wednesday", quote: "Be the reason the team hits record numbers today." , audio: "/audio/entry/day_8.mp3" },
+  { day: 9, dayName: "Thursday", quote: "A powerful day starts with a powerful mindset.", audio: "/audio/entry/day_9.mp3" },
+  { day: 10, dayName: "Friday", quote: "Success doesn’t wait — start taking action now." , audio: "/audio/entry/day_10.mp3" },
   
   // Week 3
-  { day: 11, dayName: "Monday", quote: "Your effort today writes your success story." ,audio: "/voices/day 11.mp3" },
-  { day: 12, dayName: "Tuesday", quote: "Let's turn potential into performance.", audio: "/voices/day 12.mp3" },
-  { day: 13, dayName: "Wednesday", quote: "Winners act early. Be the first to close today", audio: "/voices/day 13.mp3" },
-  { day: 14, dayName: "Thursday", quote: "Focus on progress, not perfection — keep moving." , audio: "/voices/day 14.mp3" },
-  { day: 15, dayName: "Friday", quote: "Your tone, confidence, and attitude move sales.", audio: "/voices/day 15.mp3" },
+  { day: 11, dayName: "Monday", quote: "Your effort today writes your success story." ,audio: "/audio/entry/day_11.mp3" },
+  { day: 12, dayName: "Tuesday", quote: "Let's turn potential into performance.", audio: "/audio/entry/day_12.mp3" },
+  { day: 13, dayName: "Wednesday", quote: "Winners act early. Be the first to close today", audio: "/audio/entry/day_13.mp3" },
+  { day: 14, dayName: "Thursday", quote: "Focus on progress, not perfection — keep moving." , audio: "/audio/entry/day_14.mp3" },
+  { day: 15, dayName: "Friday", quote: "Your tone, confidence, and attitude move sales.", audio: "/audio/entry/day_15.mp3" },
   
   // Week 4
-  { day: 16, dayName: "Monday", quote: "Make today better than yesterday." , audio: "/voices/day 16.mp3" },
-  { day: 17, dayName: "Tuesday", quote: "You came to work — now let’s work to win.!" , audio: "/voices/day 17.mp3" },
-  { day: 18, dayName: "Wednesday", quote: "Your morning calls build the whole day’s momentum." , audio: "/voices/day 18.mp3" },
-  { day: 19, dayName: "Thursday", quote: "If you want results, start creating them now." , audio: "/voices/day 19.mp3" },
-  { day: 20, dayName: "Friday", quote: "Every target is achievable — break it step by step." , audio: "/voices/day 20.mp3" },
+  { day: 16, dayName: "Monday", quote: "Make today better than yesterday." , audio: "/audio/entry/day_16.mp3" },
+  { day: 17, dayName: "Tuesday", quote: "You came to work — now let’s work to win.!" , audio: "/audio/entry/day_17.mp3" },
+  { day: 18, dayName: "Wednesday", quote: "Your morning calls build the whole day’s momentum." , audio: "/audio/entry/day_18.mp3" },
+  { day: 19, dayName: "Thursday", quote: "If you want results, start creating them now." , audio: "/audio/entry/day_19.mp3" },
+  { day: 20, dayName: "Friday", quote: "Every target is achievable — break it step by step." , audio: "/audio/entry/day_20.mp3" },
   
   // Extra 2 days (for full month coverage)
-  { day: 21, dayName: "Monday", quote: "Mindset ON, excuses OFF", audio: "/voices/day 21.mp3" },
-  { day: 22, dayName: "Tuesday", quote: "Let’s make today the highest-performing day of the week.", audio: "/voices/day 22.mp3" },
+  { day: 21, dayName: "Monday", quote: "Mindset ON, excuses OFF", audio: "/audio/entry/day_21.mp3" },
+  { day: 22, dayName: "Tuesday", quote: "Let’s make today the highest-performing day of the week.", audio: "/audio/entry/day_22.mp3" },
 ];
 
-// Function to get current working day number (1-22) based on date
+// Function to get current working day number (1-22) based on UTC-6 timezone
 const getCurrentWorkingDay = () => {
   const startDate = new Date(2025, 11, 1); // December 1, 2025 (month is 0-indexed)
-  const currentDate = new Date();
+  
+  // Get current time in UTC-6 timezone (CST/CDT - America/Chicago)
+  const usaDate = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
     
   let workingDayCount = 0;
   const tempDate = new Date(startDate);
   
-  while (tempDate <= currentDate) {
+  while (tempDate <= usaDate) {
     const dayOfWeek = tempDate.getDay();
     // Count only Monday (1) to Friday (5)
     if (dayOfWeek >= 1 && dayOfWeek <= 5) {
@@ -91,8 +93,9 @@ const [audioPlayer, setAudioPlayer] = useState(null);
 useEffect(() => {
     setMounted(true);
 
-    const today = new Date();
-    const dayOfWeek = today.getDay(); // 0 = Sunday, 6 = Saturday
+    // Get current time in UTC-6 timezone (CST/CDT)
+    const usaDate = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
+    const dayOfWeek = usaDate.getDay(); // 0 = Sunday, 6 = Saturday
 
     // Skip screen on Saturday & Sunday
     if (dayOfWeek === 0 || dayOfWeek === 6) return;
@@ -187,11 +190,11 @@ return (
               <div className="text-right">
                 <div className="text-gray-400 xl-plus:text-5xl text-sm font-medium uppercase tracking-wider mb-4">Current Time</div>
                 <div className="text-white xl-plus:text-7xl text-3xl font-black">
-                  {new Date().toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: true,
-                  })}
+                {new Date().toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              })}
                 </div>
                 
               </div>
