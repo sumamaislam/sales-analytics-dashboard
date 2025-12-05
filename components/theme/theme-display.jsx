@@ -891,7 +891,7 @@ export default function ThemeDisplay() {
   }
 
   // Show break time quotes at 3:28 AM
-  if (!showBreakTimeQuotes) {
+  if (showBreakTimeQuotes) {
     return <BreakTimeQuotes isVisible={true} />;
   }
 
