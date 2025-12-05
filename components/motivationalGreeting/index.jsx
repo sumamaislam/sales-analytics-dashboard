@@ -106,7 +106,11 @@ useEffect(() => {
     if (mounted && isVisible && currentQuote && currentQuote.audio) {
       const audio = new Audio(currentQuote.audio);
       audio.volume = 1;
+    const timer = setTimeout(() => {
       audio.play();
+    }, 2000); // 2 sec delay
+
+    
       setAudioPlayer(audio);
 
       return () => {
@@ -220,7 +224,7 @@ return (
                   ease: "linear",
                 }}
               >
-                HELLO EVERYONE
+                WELCOME TEAM
               </motion.h1>
               
               {/* Animated Underline */}

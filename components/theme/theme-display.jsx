@@ -6,6 +6,7 @@ import { useSalesAnalytics } from "../socket/useSocketData";
 import GoodMorning from "../goodMorning";
 import GoodNight from "../goodNight";
 import MotivationalGreeting from "../motivationalGreeting";
+import BreakTimeQuotes from "../breakTimeQuotes";
 import Header from "../header";
 import SalesDashboard from "../SalesDashboard";
 import SalesMarquee from "../SalesDashboard/salesMarquee";
@@ -325,7 +326,9 @@ export default function ThemeDisplay() {
   const { data: salesData, loading } = useSalesAnalytics();
   const [showGreeting, setShowGreeting] = useState(false);
   const [showMotivational, setShowMotivational] = useState(false);
+  const [showBreakTimeQuotes, setShowBreakTimeQuotes] = useState(false);
   const [motivationalShownToday, setMotivationalShownToday] = useState(false);
+  const [breakTimeShownToday, setBreakTimeShownToday] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [opacity, setOpacity] = useState(1);
   const [blur, setBlur] = useState(0);
@@ -524,7 +527,7 @@ export default function ThemeDisplay() {
       const minutes = now.getMinutes();
       
       // Show motivational greeting at 16:32 (4:32 PM)
-      if (hours === 19 && minutes === 30 && !motivationalShownToday) {
+      if (hours === 4 && minutes === 55 && !motivationalShownToday) {
         setMotivationalShownToday(true);
         setShowMotivational(true);
         setShowGreeting(false);
@@ -554,6 +557,46 @@ export default function ThemeDisplay() {
       clearInterval(interval);
     };
   }, [motivationalShownToday]);
+
+  // Check for 3:28 AM to show break time quotes
+  useEffect(() => {
+    const checkBreakTimeQuotes = () => {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      
+      // Show break time quotes at 3:28 AM (03:28)
+      if (hours === 3 && minutes === 39 && !breakTimeShownToday) {
+        setBreakTimeShownToday(true);
+        setShowBreakTimeQuotes(true);
+        setShowGreeting(false);
+        setShowSalesDashboard(false);
+        setShowSummary(false);
+        setShowMotivational(false);
+        
+        // Hide after 10 seconds
+        setTimeout(() => {
+          setShowBreakTimeQuotes(false);
+          setShowSalesDashboard(true);
+        }, 10000);
+      }
+      
+      // Reset flag at midnight (next day)
+      if (hours === 0 && minutes === 0) {
+        setBreakTimeShownToday(false);
+      }
+    };
+
+    // Check immediately
+    checkBreakTimeQuotes();
+    
+    // Check every 5 seconds for faster detection
+    const interval = setInterval(checkBreakTimeQuotes, 5000);
+    
+    return () => {
+      clearInterval(interval);
+    };
+  }, [breakTimeShownToday]);
 
   // Helper function to play the actual ring tone
   const playRingTone = (audioContext) => {
@@ -847,8 +890,13 @@ export default function ThemeDisplay() {
     }
   }
 
-  // Show motivational greeting at 4:25 AM
-  if (showMotivational) {
+  // Show break time quotes at 3:28 AM
+  if (showBreakTimeQuotes) {
+    return <BreakTimeQuotes isVisible={true} />;
+  }
+
+  // Show motivational greeting at 4:32 PM
+  if (!showMotivational) {
     return <MotivationalGreeting isVisible={true} />;
   }
 

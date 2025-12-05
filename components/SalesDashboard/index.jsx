@@ -15,6 +15,7 @@ import { useSalesAnalytics } from '../socket/useSocketData'
 const SalesDashboard = memo(function SalesDashboard({currentIndex ,setCurrentIndex ,userNames ,setUserNames}) {
     const { data: salesData, loading, error } = useSalesAnalytics()
     console.log(salesData, "salesData");
+    const [joiningDate, setJoiningDate] = useState([]);
 
     // const [currentIndex, setCurrentIndex] = useState(0);
     // const [userNames, setUserNames] = useState([]);
@@ -34,9 +35,16 @@ const SalesDashboard = memo(function SalesDashboard({currentIndex ,setCurrentInd
         if (salesData?.data?.salesAnalyticsUserWise) {
             const names = Object.values(salesData.data.salesAnalyticsUserWise).map((item) => item?.userInfo?.name);
             setUserNames(names);
+            
         }
     }, [salesData?.data?.salesAnalyticsUserWise]);
 
+    useEffect(() => {
+        if (salesData?.data?.salesAnalyticsUserWise) {
+            const joiningDates = Object.values(salesData.data.salesAnalyticsUserWise).map((item) => item?.userInfo?.joining);
+            setJoiningDate(joiningDates);
+        }
+    }, [salesData?.data?.salesAnalyticsUserWise]);
     // Load voices when component mounts
     // useEffect(() => {
     //     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -191,7 +199,7 @@ const SalesDashboard = memo(function SalesDashboard({currentIndex ,setCurrentInd
                                         {userNames[currentIndex] || "Loading..."}
                                     </h2>
                               
-                            <p className='bg-[white]/50 xl-plus:text-[32px] 2xl:text-[16px] text-[12px] px-5 py-1 xl-plus:rounded-[21px] rounded-[10px] text-foreground'>Since 2022</p>
+                            <p className='bg-[white]/50 xl-plus:text-[32px] 2xl:text-[16px] text-[12px] px-5 py-1 xl-plus:rounded-[21px] rounded-[10px] text-foreground'>Since {joiningDate[currentIndex]}</p>
                         </div>
                         <div className="flex items-center gap-4">
                             {/* <button

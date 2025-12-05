@@ -10,6 +10,8 @@ function SalesMarquee() {
     const lateOrders = ordersReport?.lateOrders;
     const dispatchToday = ordersReport?.dispatchToday;
     const inTransit = ordersReport?.inTransit;
+   
+    
 
    
     // Create content strings for all sections
@@ -81,43 +83,43 @@ function SalesMarquee() {
  
 
     const renderMarqueeContent = (content, color) => {
-        // Split by order numbers and agent names
-        const parts = content.split(/(#\s*\d+(?:\s*,\s*#\s*\d+)*|\d+(?:\s*,\s*\d+)*)/g);
+        // Split content into parts while keeping delimiters
+        const parts = content.split(/(\s+)/);
+        
         return parts.map((part, index) => {
-            if (part.match(/#\s*\d+/) || part.match(/^\d+/)) {
-                // All order numbers (with or without #) - colored
+            if (part.trim() === '') {
+                // Preserve whitespace as-is
                 return (
-                    <span key={index} className={`${color} font-semibold`}>
+                    <span key={index}>
                         {part}
                     </span>
                 );
-            } else if (part.trim() === '') {
-                return null;
-            } else {
-                // Check if this is an agent name (followed by order numbers)
-                const nextPart = parts[index + 1];
-                const isAgentName = nextPart && (nextPart.match(/#\s*\d+/) || nextPart.match(/^\d+/));
-                
-                // Also check if this part looks like a name (contains letters and spaces)
-                const looksLikeName = /^[A-Za-z\s]+$/.test(part.trim()) && part.trim().length > 1;
-                
-                if (isAgentName || looksLikeName) {
-                    // Agent names - foreground color
-                    return (
-                        <span key={index} className="text-foreground xl-plus:mx-8 mx-3">
-                            {part}
-                        </span>
-                    );
-                } else {
-                    // Other text - white color
-                    return (
-                        <span key={index} className="text-white ">
-                            {part}
-                        </span>
-                    );
-                }
             }
-        }).filter(Boolean);
+            
+            // Check if part contains order numbers
+            if (part.match(/#\d+/) || part.match(/^\d+/) || part.includes(',')) {
+                // Order numbers and commas - colored
+                return (
+                    <span key={index} className={`${color} font-semibold mx-1`}>
+                        {part}
+                    </span>
+                );
+            } else if (/^[A-Za-z\s]+$/.test(part) && part.length > 1) {
+                // Agent names - foreground color, minimal spacing
+                return (
+                    <span key={index} className="text-foreground mx-2">
+                        {part}
+                    </span>
+                );
+            } else {
+                // Default - foreground color
+                return (
+                    <span key={index} className="text-foreground ml-3">
+                        {part}
+                    </span>
+                );
+            }
+        }).filter((el, idx) => !(el.props.children.trim() === '' && idx === 0)); // Remove leading spaces
     };
     return (
         <div className="">
