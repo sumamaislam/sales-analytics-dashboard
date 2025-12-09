@@ -23,8 +23,8 @@ export function SocketDataProvider({ children }) {
 
   useEffect(() => {
     // Connect socket
-    // const newSocket = io("https://pipefish-united-poorly.ngrok-free.app", {
-    const newSocket = io("http://localhost:5000", {
+    const newSocket = io("https://pipefish-united-poorly.ngrok-free.app", {
+    // const newSocket = io("http://localhost:5000", {
       transports: ["websocket"],
       timeout: 50000,
     });
