@@ -17,14 +17,56 @@ export function SocketDataProvider({ children }) {
 
   const [salesAnalytics, setSalesAnalytics] = useState(null);
   const [salesSummary, setSalesSummary] = useState(null);
+  console.log(salesSummary, "salesSummary");
+  
   const [designAndDieAnalytics, setDesignAndDieAnalytics] = useState(null);
   const [error, setError] = useState(null);
   const [showMaintenance, setShowMaintenance] = useState(false);
 
+
+//   useEffect(() => {
+//   // const fetchLatestData = async () => {
+//   //   try {
+//   //     // Sales Analytics
+//   //     const resSales = await fetch("http://localhost:5000/api/analytics/sales-analytics");
+//   //     const dataSales = await resSales.json();
+//   //     setSalesAnalytics(dataSales.data);
+
+//   //     // Sales Summary
+//   //     const resSummary = await fetch("http://localhost:5000/api/summary/sales-summary");
+//   //     const dataSummary = await resSummary.json();
+//   //     setSalesSummary(dataSummary.data);
+
+//   //     // Design & Die
+//   //     const resDesign = await fetch("http://localhost:5000/api/design-and-die/design-die-analytics");
+//   //     const dataDesign = await resDesign.json();
+//   //     setDesignAndDieAnalytics(dataDesign.data);
+
+//   //   } catch (err) {
+//   //     console.error("❌ Error fetching latest DB data:", err);
+//   //   }
+//   // };
+// const fetchAndUpdate = async () => {
+//   try {
+//     const resSales = await fetch("http://localhost:5000/api/analytics/sales-analytics");
+//     setSalesAnalytics((await resSales.json()).data);
+
+//     const resSummary = await fetch("http://localhost:5000/api/summary/sales-summary");
+//     setSalesSummary((await resSummary.json()).data);
+
+//     const resDesign = await fetch("http://localhost:5000/api/design-and-die/design-die-analytics");
+//     setDesignAndDieAnalytics((await resDesign.json()).data);
+//   } catch (err) {
+//     console.error(err);
+//   }
+// };
+//   fetchAndUpdate();
+// }, []);
+
   useEffect(() => {
     // Connect socket
-    const newSocket = io("https://pipefish-united-poorly.ngrok-free.app", {
-    // const newSocket = io("http://localhost:5000", {
+    // const newSocket = io("https://pipefish-united-poorly.ngrok-free.app", {
+    const newSocket = io("http://localhost:5000", {
       transports: ["websocket"],
       timeout: 50000,
     });

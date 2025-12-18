@@ -76,7 +76,7 @@ function DieLineStats({designAndDieAnalytics}) {
 
                 {/* Right Section - Donut Chart */}
                 <div className='w-[65%] h-[100%]'>
-                    <div className="w-full h-[280px] xl-plus:h-[670.99px]">
+                    <div className="w-full text-foreground h-[280px] xl-plus:h-[670.99px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
@@ -102,7 +102,7 @@ function DieLineStats({designAndDieAnalytics}) {
                                                 y={y}
                                                 textAnchor="middle"
                                                 dominantBaseline="central"
-                                                className="text-[18px] xl-plus:text-[42px] fill-black text-foreground font-bold"
+                                                className="text-[18px] xl-plus:text-[42px]  text-foreground font-bold"
                                             >
                                                 {`${percentage}%`}
                                             </text>

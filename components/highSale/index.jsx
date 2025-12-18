@@ -10,13 +10,16 @@ export default function CelebrationScreen() {
   const [glowParticles, setGlowParticles] = useState([])
   const [audioStarted, setAudioStarted] = useState(false)
   const [celebrationData, setCelebrationData] = useState(null)
+  console.log(celebrationData, "samamaPayment");
+  
   const audioRef = useRef(null)
 
   const { notification } = useMessage()
 
   // Only update celebrationData if notification has a valid amount
   useEffect(() => {
-    if (notification && typeof notification.amount === 'number' && notification.amount > 0) {
+    // if (notification && typeof notification.amount === 'number' && notification.amount > 0) {
+    if(notification){
       setCelebrationData(notification)
       console.log("New Notification:", notification)
     }

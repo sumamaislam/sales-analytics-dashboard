@@ -328,11 +328,17 @@ const ringTones = {
 export default function ThemeDisplay() {
   const { theme } = useTheme();
   const { data: salesData, loading } = useSalesAnalytics();
+  console.log(salesData, "sales");
+  
+  const [payment, setPayment] = useState(null);
+ 
+  
   const [showGreeting, setShowGreeting] = useState(false);
   const {notification  } = useMessage()
    useEffect(() => {
-    if (notification) {
-      console.log("New Notification:", notification);
+     if (notification) {
+       setPayment(notification);
+      //  console.log("New Notification:", notification);
     }
   }, [notification]);
 
@@ -554,7 +560,9 @@ export default function ThemeDisplay() {
       lastSpokenNameRef.current = currentName;
       console.log("🎤 Speaking: ", currentName);
       setTimeout(() => {
-        speakUserName(currentName, selectedVoice);
+        speakUserName(currentName=== "Liza John" ? "leeza john" : currentName === "Sarah Paul" ? "saaarah paul" : currentName, selectedVoice);
+        // speakUserName("Saarah " ,selectedVoice);
+     
       }, 2000);
     }
   }, [currentIndex, userNames, selectedVoice, voices]);
@@ -654,7 +662,8 @@ useEffect(() => {
 }, [birthdayShownToday]);
 
   useEffect(() => {
-    if (notification && notification.isCelebration === true) {
+    // alert(payment.isCelebration)
+    if (payment && payment.isCelebration) {
       setShowGreeting(false);
       setShowSalesDashboard(false);
       setShowSummary(false);
@@ -664,7 +673,7 @@ useEffect(() => {
       setShowBirthday(false);
       setOffTimeShownToday(false);
 
-      if (notification.isPremium === true) {
+      if (payment.isPremium) {
         setShowCelebration(true);
         // Hide after 10 seconds
         setTimeout(() => {
@@ -680,7 +689,7 @@ useEffect(() => {
         }, 10000);
       }
     }
-  }, [notification]);
+  }, [payment]);
 
   // Check for 4:32 PM to show motivational greeting
   useEffect(() => {
@@ -862,7 +871,7 @@ useEffect(() => {
       let summaryTimer = null;
       let resumeTimer = null;
       let animationTimers = [];
-
+      
       const clearAllTimers = () => {
         if (userTimer) clearInterval(userTimer);
         if (summaryTimer) clearTimeout(summaryTimer);
@@ -952,7 +961,9 @@ useEffect(() => {
       return () => {
         clearAllTimers();
       };
+
     }
+    
   }, [userNames.length, showSalesDashboard]);
 
   // Show loader while data is loading

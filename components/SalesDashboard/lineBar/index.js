@@ -493,16 +493,28 @@ function LineBar({ currentUserIndex = 0 }) {
 
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-    stableChartDataRef.current = months.map((month, index) => {
-      const monthNum = (index + 1).toString()
+  //   stableChartDataRef.current = months.map((month, index) => {
+  //     const monthNum = (index + 1).toString()
+  //     return {
+  //       month,
+  //       monthly: currentUserData.thisYear?.[monthNum] || 0,
+  //       yearly: currentUserData.lastYear?.[monthNum] || 0,
+  //     }
+  //   })
+  // }, [saleAnalytics, currentUserIndex])
+stableChartDataRef.current = months.map((month, index) => {
+      const monthNum = String(index + 1)
+
+      const thisYearVal = currentUserData.thisYear?.[monthNum] ?? 0
+      const lastYearVal = currentUserData.lastYear?.[monthNum] ?? 0
+
       return {
         month,
-        monthly: currentUserData.thisYear?.[monthNum] || 0,
-        yearly: currentUserData.lastYear?.[monthNum] || 0,
+        monthly: Math.max(0, Number(thisYearVal)), // 👈 NEGATIVE → 0
+        yearly: Math.max(0, Number(lastYearVal)), // 👈 NEGATIVE → 0
       }
     })
   }, [saleAnalytics, currentUserIndex])
-
   // Use stable chart data from ref
   const salesData = stableChartDataRef.current
 
@@ -663,15 +675,16 @@ function LineBar({ currentUserIndex = 0 }) {
           <div className="h-[24vh] w-full relative">
             {/* Separate tooltip that doesn't affect chart */}
             {currentTooltipData && (
-              <div className="absolute top-2 left-2 z-10 bg-[#374151] text-foreground px-3 py-2 rounded-lg text-[12px] shadow-xl border-2 border-pink-400/50">
-                <div className="font-medium text-white">{currentTooltipData.month}</div>
-                <div className="text-pink-400 font-semibold">
-                  {currentYear}: {currentTooltipData.monthly}
-                </div>
-                <div className="text-blue-400 font-semibold">
-                  {previousYear}: {currentTooltipData.yearly}
-                </div>
-              </div>
+              <div className="absolute top-0 right-2 z-50 bg-[#374151] text-white px-2 py-2 rounded-lg shadow-xl border-2 border-pink-400/50 w-[150px] max-h-[90%] overflow-y-auto text-[12px]">
+      {/* <div className="font-semibold mb-1 text-[10px]">Sales ({previousYear}-{currentYear})</div> */}
+      {salesData.map((item) => (
+        <div key={item.month} className="flex justify-between mb-0.5 text-[8px] xl-plus:text-[22px]">
+          <span className="w-[40px] font-medium">{item.month}</span>
+          <span className="text-pink-400 font-semibold"> {Math.round(item.monthly)}</span>
+          <span className="text-blue-400 font-semibold ml-2"> {Math.round(item.yearly)}</span>
+        </div>
+      ))}
+    </div>
             )}
             <ResponsiveContainer width="100%" height="100%">
               <LineChart {...chartProps}>
@@ -738,15 +751,25 @@ function LineBar({ currentUserIndex = 0 }) {
           <div className="h-[24vh] w-full relative">
             {/* Separate tooltip that doesn't affect chart */}
             {currentTooltipData && (
-              <div className="absolute top-4 left-4 z-10 bg-[#374151] text-foreground px-4 py-3 rounded-lg text-[20px] shadow-xl border-2 border-pink-400/50">
-                <div className="font-medium text-white mb-1">{currentTooltipData.month}</div>
-                <div className="text-pink-400 font-semibold">
-                  {currentYear}: {currentTooltipData.monthly}
-                </div>
-                <div className="text-blue-400 font-semibold">
-                  {previousYear}: {currentTooltipData.yearly}
-                </div>
-              </div>
+              // <div className="absolute top-4 left-4 z-10 bg-[#374151] text-foreground px-4 py-3 rounded-lg text-[20px] shadow-xl border-2 border-pink-400/50">
+              //   <div className="font-medium text-white mb-1">{currentTooltipData.month}</div>
+              //   <div className="text-pink-400 font-semibold">
+              //     {currentYear}: {currentTooltipData.monthly}
+              //   </div>
+              //   <div className="text-blue-400 font-semibold">
+              //     {previousYear}: {currentTooltipData.yearly}
+              //   </div>
+              // </div>
+              <div className="absolute top-0 right-2 z-50 bg-[#374151] text-white px-2 py-2 rounded-lg shadow-xl border-2 border-pink-400/50 w-[250px] max-h-[90%] overflow-y-auto text-[12px]">
+      {/* <div className="font-semibold mb-1 text-[10px]">Sales ({previousYear}-{currentYear})</div> */}
+      {salesData.map((item) => (
+        <div key={item.month} className="flex justify-between mb-0.5 text-[8px] xl-plus:text-[22px]">
+          <span className="w-[40px] font-medium">{item.month}</span>
+          <span className="text-pink-400 font-semibold"> {Math.round(item.monthly)}</span>
+          <span className="text-blue-400 font-semibold ml-2"> {Math.round(item.yearly)}</span>
+        </div>
+      ))}
+    </div>
             )}
             <ResponsiveContainer width="100%" height="100%">
               <LineChart {...largeChartProps}>
